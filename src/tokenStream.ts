@@ -15,7 +15,7 @@ const ALPHABET = "abcdefghijklmnopqrstuvwxyz".split("");
 const NUMBER = "1234567890".split("");
 const VARSTART = [...ALPHABET, "_"];
 const IDENTIFIER = [...VARSTART, ...NUMBER];
-const PUNCT = "{}[]();,".split("");
+const PUNCT = "{}[]();:,".split("");
 const COMMENT = ["#"];
 const KEYWORDS = ["if", "then", "else", "lambda", "true", "false"];
 

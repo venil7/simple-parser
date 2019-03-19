@@ -30,7 +30,7 @@ type AstStr = { type: typeof AstNode.Str; value: string };
 type AstBool = { type: typeof AstNode.Bool; value: boolean };
 type AstVar = { type: typeof AstNode.Var; value: string };
 type AstIf = { type: typeof AstNode.If; cond: Ast; then: Ast; else: Ast };
-type AstLambda = { type: typeof AstNode.Lambda; vars: string[]; body: Ast };
+type AstLambda = { type: typeof AstNode.Lambda; vars: AstVar[]; body: Ast[] };
 type AstCall = { type: typeof AstNode.Call; func: Ast; args: Ast[] };
 type AstProg = { type: typeof AstNode.Prog; body: Ast[] };
 type AstBinary = {
@@ -66,6 +66,7 @@ const isVar = isTokenType(TokenType.Var);
 const isString = isTokenType(TokenType.Str);
 const isNum = isTokenType(TokenType.Num);
 const isIf = isToken(TokenType.Kw)("if");
+const isLambda = isToken(TokenType.Kw)("lambda");
 const isTrue = isToken(TokenType.Kw)("true");
 const isFalse = isToken(TokenType.Kw)("false");
 export const isAssign = isToken(TokenType.Op)("=");
@@ -86,11 +87,21 @@ export class Parser {
     value
   });
 
+  private parseVarName = (): AstVar => {
+    const peek = this.peek();
+    if (isVar(peek)) {
+      const val = this.next().value as string;
+      return this.parseVar(val);
+    }
+    this.error(`${peek.value} is not a variable name`);
+  };
+
   private parseItem(): Ast {
     const peek = this.peek();
     if (isIf(peek)) return this.parseIf();
     // if (isOpenParen(peek)) return this.parseExpression();
     if (isOpenCurly(peek)) return this.parseProg();
+    if (isLambda(peek)) return this.parseLambda();
     const next = this.next();
     if (isVar(next))
       return this.maybeCall(() => this.parseVar(next.value as string));
@@ -111,6 +122,21 @@ export class Parser {
       body
     };
   }
+
+  private parseLambda(): AstLambda {
+    this.skipLambda();
+    const vars = this.delimited("(", ")", ",", () =>
+      this.parseVarName()
+    ) as AstVar[];
+    this.skipCol();
+    const body = this.delimited("{", "}", ";", () => this.parseExpression());
+    return {
+      type: AstNode.Lambda,
+      vars,
+      body
+    };
+  }
+
   private parseIf(): AstIf {
     this.skipIf();
     const cond = this.parseExpression();
@@ -217,10 +243,12 @@ export class Parser {
   }
   private skipKw = (val: string) => this.skipToken(TokenType.Kw, val);
   private skipIf = () => this.skipKw("if");
+  private skipLambda = () => this.skipKw("lambda");
   private skipThen = () => this.skipKw("then");
   private skipElse = () => this.skipKw("else");
   private skipPunc = (val: string) => this.skipToken(TokenType.Punc, val);
   private skipSemicol = () => this.skipPunc(";");
+  private skipCol = () => this.skipPunc(":");
   private eof = (): boolean => this.tokenStream.eof();
   private next = (): Token => this.tokenStream.next().value;
   private peek = (): Token => this.tokenStream.peek().value;

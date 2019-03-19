@@ -2,8 +2,9 @@ import { Parser } from "./parser";
 import { TokenStream } from "./tokenStream";
 
 const input = `
-  if a==true then {hello(1,2,3);} else {b="str"};
-  print("some string", 123);
+  #if a==true then {hello(1,2,3);} else {b="str"};
+  #print("some string", 123);
+  lambda (a,b): {a+b;}
 `;
 
 const tokenResult = () => {
