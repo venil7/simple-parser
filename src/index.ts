@@ -1,24 +1,29 @@
-import { TokenStream } from "./tokenStream";
 import { Parser } from "./parser";
+import { TokenStream } from "./tokenStream";
 
 const input = `
-    a==9;
+  if a==true then {hello(1,2,3);} else {b="str"};
+  print("some string", 123);
 `;
 
-const result = () => {
+const tokenResult = () => {
   try {
-    // const ts = new TokenStream(input);
-    // const tokens = Array.from(ts.stream());
-    // return tokens;
+    const ts = new TokenStream(input);
+    const tokens = Array.from(ts.stream());
+    return tokens;
+  } catch (e) {
+    return (e as Error).message;
+  }
+};
+const parserResult = () => {
+  try {
     const parser = new Parser(input);
     return parser.parseTopLevel();
   } catch (e) {
-    return e.message;
+    return (e as Error).message;
   }
 };
 
-document.getElementById("app").innerHTML = `${JSON.stringify(
-  result(),
-  null,
-  2
-)}`;
+document.getElementById("app").innerHTML = `
+${JSON.stringify(parserResult(), null, 2)}
+`;

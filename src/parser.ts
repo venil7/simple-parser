@@ -1,17 +1,17 @@
-import { TokenStream, TokenType } from "./tokenStream";
 import { BinaryOp } from "./operator";
-import { Peekable, Token } from "./peekable";
+import { Peekable } from "./peekable";
+import { Token, TokenStream, TokenType } from "./tokenStream";
 enum AstNode {
-  Num,
-  Str,
-  Bool,
-  Var,
-  Lambda,
-  Call,
-  If,
-  Assign,
-  Binary,
-  Prog
+  Num = "Num",
+  Str = "Str",
+  Bool = "Bool",
+  Var = "Var",
+  Lambda = "Lambda",
+  Call = "Call",
+  If = "If",
+  Assign = "Assign",
+  Binary = "Binary",
+  Prog = "Prog"
 }
 
 type Ast =
@@ -50,11 +50,11 @@ type ParserFunc = () => Ast;
 
 const isTokenType = (tokenType: TokenType) => (token: Token) =>
   tokenType === token.type;
-const isTokenVal = (value: typeof Token.value) => (token: Token) =>
+const isTokenVal = (value: Token["value"]) => (token: Token) =>
   value === token.value;
-const isToken = (tokenType: TokenType) => (value: typeof Token.value) => (
+const isToken = (tokenType: TokenType) => (value: Token["value"]) => (
   token: Token
-) => isTokenType(tokenType)(token) && isTokenVal(tokenType)(token);
+) => isTokenType(tokenType)(token) && isTokenVal(value)(token);
 const isOp = isTokenType(TokenType.Op);
 const isPunc = isTokenType(TokenType.Punc);
 const isSemicol = isToken(TokenType.Punc)(";");
@@ -62,13 +62,13 @@ const isOpenParen = isToken(TokenType.Punc)("(");
 const isCloseParen = isToken(TokenType.Punc)(")");
 const isOpenCurly = isToken(TokenType.Punc)("{");
 const isCloseCurly = isToken(TokenType.Punc)("}");
-const isVar = isToken(TokenType.Var);
-const isString = isToken(TokenType.Str);
-const isNum = isToken(TokenType.Num);
+const isVar = isTokenType(TokenType.Var);
+const isString = isTokenType(TokenType.Str);
+const isNum = isTokenType(TokenType.Num);
 const isIf = isToken(TokenType.Kw)("if");
 const isTrue = isToken(TokenType.Kw)("true");
 const isFalse = isToken(TokenType.Kw)("false");
-const isAssign = isToken(TokenType.Op)("=");
+export const isAssign = isToken(TokenType.Op)("=");
 
 export class Parser {
   private rawTokenStream: TokenStream;
@@ -88,15 +88,17 @@ export class Parser {
 
   private parseItem(): Ast {
     const peek = this.peek();
-    if (isIf(next)) return this.parseIf();
-    if (isOpenParen(next)) return this.parseExpression();
-    if (isOpenCurly(next)) return this.parseProg();
+    if (isIf(peek)) return this.parseIf();
+    // if (isOpenParen(peek)) return this.parseExpression();
+    if (isOpenCurly(peek)) return this.parseProg();
     const next = this.next();
-    if (isVar(next)) return this.maybeCall(next);
+    if (isVar(next))
+      return this.maybeCall(() => this.parseVar(next.value as string));
     if (isFalse(next)) return this.parseBool(false);
-    if (isString(next)) return this.parseString(next.value);
-    if (isNum(next)) return this.parseNum(next.value);
-    this.error(`Unexpected token ${next.value}`);
+    if (isTrue(next)) return this.parseBool(true);
+    if (isString(next)) return this.parseStr(next.value as string);
+    if (isNum(next)) return this.parseNum(next.value as number);
+    this.error(`Unexpected token "${next.value}"`);
   }
 
   private parseProg(): Ast | AstProg {
@@ -112,49 +114,54 @@ export class Parser {
   private parseIf(): AstIf {
     this.skipIf();
     const cond = this.parseExpression();
-    const _then = this.parseProg();
     this.skipThen();
+    const _then = this.parseProg();
+    this.skipElse();
     const _else = this.parseProg();
     return {
-      type: NodeType.If,
+      type: AstNode.If,
+      cond,
       then: _then,
       else: _else
     };
   }
 
-  private parseCall(func: AstVar): AstCall | AstVar {
-    const next = this.peek();
-    if (isOpenParen(next)) {
-      return {
-        type: AstNode.Call,
-        func,
-        args: this.delimited("(", ")", ",", () => this.parseExpression())
-      };
-    }
-    return func;
+  private parseCall(func: Ast): Ast {
+    return {
+      type: AstNode.Call,
+      func,
+      args: this.delimited("(", ")", ",", () => this.parseExpression())
+    };
   }
 
   private maybeCall(func: ParserFunc): Ast {
     const node = func();
     const next = this.peek();
-    if (isOpenParen(next)) {
+    if (!this.eof() && isOpenParen(next)) {
       return this.parseCall(node);
     }
     return node;
   }
 
-  public maybeBinary(left: Ast): Ast | AstBinary {
+  public maybeBinary(left: Ast): Ast {
     const next = this.peek();
-    if (isOp(next)) {
+    if (!this.eof() && isOp(next)) {
       const op = this.next();
       const assign = isAssign(op);
       const right = this.maybeBinary(this.parseItem());
-      return {
-        type: assign ? AstNode.Assign : AstNode.Binary,
-        op,
-        left,
-        right
-      };
+      return assign
+        ? ({
+            type: AstNode.Assign,
+            op: "=",
+            left,
+            right
+          } as AstAssign)
+        : ({
+            type: AstNode.Binary,
+            op: op.value,
+            left,
+            right
+          } as AstBinary);
     }
     return left;
   }
@@ -169,23 +176,30 @@ export class Parser {
     sep: string,
     parser: ParserFunc
   ): Ast[] {
+    const isStop = isToken(TokenType.Punc)(stop);
     const ast = [];
     let first = true;
     this.skipPunc(start);
     while (!this.eof()) {
-      if (isPunc(stop)) break;
+      if (isStop(this.peek())) {
+        this.skipPunc(stop);
+        break;
+      }
       if (first) {
         first = false;
       } else {
         this.skipPunc(sep);
       }
-      if (isPunc(stop)) break;
+      if (isStop(this.peek())) {
+        this.skipPunc(stop);
+        break;
+      }
       ast.push(parser());
     }
     return ast;
   }
 
-  private parseTopLevel(): AstProg {
+  public parseTopLevel(): AstProg {
     const body = [];
     while (!this.tokenStream.eof()) {
       body.push(this.parseExpression());
@@ -199,15 +213,17 @@ export class Parser {
   private skipToken(type: TokenType, val: string) {
     const token = this.next();
     const isCorrectToken = isToken(type)(val);
-    if (!isCorrectToken(token)) this.error(`${p} expected`);
+    if (!isCorrectToken(token)) this.error(`${val} expected`);
   }
   private skipKw = (val: string) => this.skipToken(TokenType.Kw, val);
   private skipIf = () => this.skipKw("if");
   private skipThen = () => this.skipKw("then");
+  private skipElse = () => this.skipKw("else");
   private skipPunc = (val: string) => this.skipToken(TokenType.Punc, val);
   private skipSemicol = () => this.skipPunc(";");
   private eof = (): boolean => this.tokenStream.eof();
   private next = (): Token => this.tokenStream.next().value;
   private peek = (): Token => this.tokenStream.peek().value;
-  private error = (s: string) => this.rawTokenStream.error(s);
+  private error = (s: string) =>
+    this.rawTokenStream.error(`${s} around "${this.peek().value}"`);
 }

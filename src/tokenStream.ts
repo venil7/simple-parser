@@ -1,5 +1,5 @@
 import { CharStream } from "./charStream";
-import { BinaryOp, BINARYOPS, OPS } from "./operator";
+import { BINARYOPS, OPS } from "./operator";
 
 export enum TokenType {
   Punc = "PUNC",
@@ -15,9 +15,9 @@ const ALPHABET = "abcdefghijklmnopqrstuvwxyz".split("");
 const NUMBER = "1234567890".split("");
 const VARSTART = [...ALPHABET, "_"];
 const IDENTIFIER = [...VARSTART, ...NUMBER];
-const PUNCT = "{}[]();".split("");
+const PUNCT = "{}[]();,".split("");
 const COMMENT = ["#"];
-const KEYWORDS = ["if", "then", "lambda", "true", "false"];
+const KEYWORDS = ["if", "then", "else", "lambda", "true", "false"];
 
 export type Token = { type: TokenType; value: string | number };
 
@@ -67,13 +67,16 @@ export class TokenStream {
     this.takeUntil("\n");
   }
   private takeAsString(): string {
+    this.charIterator.next(); //skip quote
     const str = this.takeUntil('"', "\n");
+    const q = this.charIterator.next(); //skip quote
+    if (!isQuote(q.value)) this.error("Unterminated string");
     return str.replace(/\"/g, "");
   }
   private takeAsOperator(): string {
     const op = this.takeWhile(...OPS);
     if (!isBinaryOperator(op) && !isAssign(op)) {
-      this.charStream.error(`Unknown operator ${op}`);
+      this.error(`Unknown operator ${op}`);
     }
     return op;
   }
@@ -84,10 +87,11 @@ export class TokenStream {
     const num = this.takeWhile(...NUMBER);
     const next = this.charStream.peek();
     if (isVarstart(next)) {
-      this.charStream.error(`Unknown token ${num}${next}..`);
+      this.error(`Unknown token ${num}${next}..`);
     }
     return Number(num);
   }
+  public error = (s: string) => this.charStream.error(s);
   public *stream(): IterableIterator<Token> {
     let char;
     while ((char = this.charStream.peek())) {
@@ -111,7 +115,7 @@ export class TokenStream {
           yield { type: TokenType.Var, value: identifier };
         }
       } else {
-        this.charStream.error(`Unknown token ${char}`);
+        this.error(`Unknown token ${char}`);
       }
     }
   }

@@ -5,11 +5,22 @@
   "main": "index.html",
   "scripts": {
     "start": "parcel index.html --open",
-    "build": "parcel build index.html"
+    "build": "parcel build index.html",
+    "test": "jest"
   },
-  "dependencies": {},
+  "dependencies": {
+    "@types/jest": "^24.0.11"
+  },
   "devDependencies": {
-    "parcel-bundler": "^1.6.1"
+    "@babel/preset-typescript": "^7.3.3",
+    "jest": "^24.5.0",
+    "parcel-bundler": "^1.6.1",
+    "typescript": "^3.3.3333"
   },
-  "keywords": ["parser", "transpiler", "compiler", "tokenizer"]
+  "keywords": [
+    "parser",
+    "transpiler",
+    "compiler",
+    "tokenizer"
+  ]
 }
