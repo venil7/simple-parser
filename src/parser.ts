@@ -1,7 +1,7 @@
 import { BinaryOp } from "./operator";
 import { Peekable } from "./peekable";
 import { Token, TokenStream, TokenType } from "./tokenStream";
-enum AstNode {
+export enum AstNode {
   Num = "Num",
   Str = "Str",
   Bool = "Bool",
@@ -14,7 +14,7 @@ enum AstNode {
   Prog = "Prog"
 }
 
-type Ast =
+export type Ast =
   | AstNum
   | AstStr
   | AstBool
@@ -25,21 +25,30 @@ type Ast =
   | AstAssign
   | AstBinary
   | AstProg;
-type AstNum = { type: typeof AstNode.Num; value: number };
-type AstStr = { type: typeof AstNode.Str; value: string };
-type AstBool = { type: typeof AstNode.Bool; value: boolean };
-type AstVar = { type: typeof AstNode.Var; value: string };
-type AstIf = { type: typeof AstNode.If; cond: Ast; then: Ast; else: Ast };
-type AstLambda = { type: typeof AstNode.Lambda; vars: AstVar[]; body: Ast[] };
-type AstCall = { type: typeof AstNode.Call; func: Ast; args: Ast[] };
-type AstProg = { type: typeof AstNode.Prog; body: Ast[] };
-type AstBinary = {
+export type AstNum = { type: typeof AstNode.Num; value: number };
+export type AstStr = { type: typeof AstNode.Str; value: string };
+export type AstBool = { type: typeof AstNode.Bool; value: boolean };
+export type AstVar = { type: typeof AstNode.Var; value: string };
+export type AstIf = {
+  type: typeof AstNode.If;
+  cond: Ast;
+  then: Ast;
+  else: Ast;
+};
+export type AstLambda = {
+  type: typeof AstNode.Lambda;
+  vars: AstVar[];
+  body: Ast[];
+};
+export type AstCall = { type: typeof AstNode.Call; func: Ast; args: Ast[] };
+export type AstProg = { type: typeof AstNode.Prog; body: Ast[] };
+export type AstBinary = {
   type: typeof AstNode.Binary;
   op: BinaryOp;
   left: Ast;
   right: Ast;
 };
-type AstAssign = {
+export type AstAssign = {
   type: typeof AstNode.Assign;
   op: "=";
   left: Ast;

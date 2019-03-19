@@ -1,10 +1,13 @@
+import * as React from "react";
+import * as ReactDOM from "react-dom";
+import { App } from "./components/App";
 import { Parser } from "./parser";
 import { TokenStream } from "./tokenStream";
 
 const input = `
-  #if a==true then {hello(1,2,3);} else {b="str"};
-  #print("some string", 123);
-  lambda (a,b): {a+b;}
+  sum = lambda (a,b): {a+b;};
+  mul = lambda (a,b): {a*b;};
+  sum(mul(2,3),5*2);
 `;
 
 const tokenResult = () => {
@@ -25,6 +28,8 @@ const parserResult = () => {
   }
 };
 
-document.getElementById("app").innerHTML = `
-${JSON.stringify(parserResult(), null, 2)}
-`;
+// document.getElementById("app").innerHTML = `
+// ${JSON.stringify(parserResult(), null, 2)}
+// `;
+
+ReactDOM.render(<App />, document.getElementById("app"));
