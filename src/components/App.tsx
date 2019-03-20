@@ -1,10 +1,11 @@
 import * as React from "react";
 import { useState } from "react";
-import AceEditor from "react-ace";
 import "react-treeview/react-treeview.css";
 import { Col, Container, Row } from "reactstrap";
 import { Ast, Parser } from "../parser";
 import { AstViewer } from "./AstViewer";
+import { Editor } from "./Editor";
+import { Result } from "./Result";
 
 const parse = (code: string): { ast: Ast; error: string } => {
   let ast, error;
@@ -23,17 +24,13 @@ export const App = () => {
     <Container>
       <Row>
         <Col sm={6}>
-          <AceEditor
-            mode="java"
-            value={code}
-            theme="github"
-            onChange={setCode}
-            name="UNIQUE_ID_OF_DIV"
-            editorProps={{ $blockScrolling: true }}
-          />
+          <Editor code={code} onChange={setCode} />
         </Col>
-        <Col sm={6}>
+        <Col sm={4}>
           <AstViewer ast={ast} error={error} />
+        </Col>
+        <Col sm={2}>
+          <Result ast={ast} />
         </Col>
       </Row>
     </Container>

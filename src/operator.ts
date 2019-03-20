@@ -1,11 +1,11 @@
 export enum BinaryOp {
-  Eq = "==",
-  NotEq = "!=",
   Plus = "+",
   Minus = "-",
   Mul = "*",
   Div = "/",
   Power = "^",
+  Eq = "==",
+  NotEq = "!=",
   GT = ">",
   GTE = ">=",
   LT = "<",
