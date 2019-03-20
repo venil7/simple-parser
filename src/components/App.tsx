@@ -7,6 +7,16 @@ import { AstViewer } from "./AstViewer";
 import { Editor } from "./Editor";
 import { Result } from "./Result";
 
+const initCode = `
+fib = lambda (x): {
+  if x < 2 then {1} else {
+      fib(x-2) + fib(x-1);
+  };
+};
+
+fib(7);
+`;
+
 const parse = (code: string): { ast: Ast; error: string } => {
   let ast, error;
   try {
@@ -18,7 +28,7 @@ const parse = (code: string): { ast: Ast; error: string } => {
 };
 
 export const App = () => {
-  const [code, setCode] = useState("");
+  const [code, setCode] = useState(initCode);
   const { ast, error } = parse(code);
   return (
     <Container>
