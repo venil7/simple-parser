@@ -108,7 +108,7 @@ export class Parser {
   private parseItem(): Ast {
     const peek = this.peek();
     if (isIf(peek)) return this.parseIf();
-    // if (isOpenParen(peek)) return this.parseExpression();
+    if (isOpenParen(peek)) return this.parseParenthesis();
     if (isOpenCurly(peek)) return this.parseProg();
     if (isLambda(peek)) return this.parseLambda();
     const next = this.next();
@@ -119,6 +119,13 @@ export class Parser {
     if (isString(next)) return this.parseStr(next.value as string);
     if (isNum(next)) return this.parseNum(next.value as number);
     this.error(`Unexpected token "${next.value}"`);
+  }
+
+  private parseParenthesis(): Ast {
+    this.skipPunc("(");
+    const ast = this.parseExpression();
+    this.skipPunc(")");
+    return ast;
   }
 
   private parseProg(): Ast | AstProg {
@@ -150,9 +157,9 @@ export class Parser {
     this.skipIf();
     const cond = this.parseExpression();
     this.skipThen();
-    const _then = this.parseProg();
+    const _then = this.parseExpression();
     this.skipElse();
-    const _else = this.parseProg();
+    const _else = this.parseExpression();
     return {
       type: AstNode.If,
       cond,
