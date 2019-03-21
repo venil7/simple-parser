@@ -194,7 +194,7 @@ const runCall = (ast: AstCall, ctx: Context): RunResult => {
     .map(varName => runVarName(varName, ctx))
     .map(([name]) => name);
   const lambdaContext = createContext(ctx, zip(names, args));
-  const [result, _ctx] = runSequence(lambda.body, lambdaContext);
+  const [result, _ctx] = run(lambda.body, lambdaContext);
   return [result, _ctx.parent];
 };
 const runLambda = (ast: AstLambda, ctx: Context): RunResult => [ast, ctx];

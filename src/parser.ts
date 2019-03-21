@@ -38,7 +38,7 @@ export type AstIf = {
 export type AstLambda = {
   type: typeof AstNode.Lambda;
   vars: AstVar[];
-  body: Ast[];
+  body: Ast;
 };
 export type AstCall = { type: typeof AstNode.Call; func: Ast; args: Ast[] };
 export type AstProg = { type: typeof AstNode.Prog; body: Ast[] };
@@ -145,7 +145,7 @@ export class Parser {
       this.parseVarName()
     ) as AstVar[];
     this.skipCol();
-    const body = this.delimited("{", "}", ";", () => this.parseExpression());
+    const body = this.parseExpression(); //this.delimited("{", "}", ";", () => this.parseExpression());
     return {
       type: AstNode.Lambda,
       vars,

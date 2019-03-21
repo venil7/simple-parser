@@ -91,7 +91,7 @@ const AstLambdaNode = ({ id, node }: AstNodeProps<AstLambda>) => {
   return (
     <TreeView key={id} nodeLabel={node.type}>
       <TreeView nodeLabel="args">{node.vars.map(astNode)}</TreeView>
-      <TreeView nodeLabel="body">{node.body.map(astNode)}</TreeView>
+      <TreeView nodeLabel="body">{astNode(node.body)}</TreeView>
     </TreeView>
   );
 };

@@ -8,13 +8,19 @@ import { Editor } from "./Editor";
 import { Result } from "./Result";
 
 const initCode = `
+# fibonacci
 fib = lambda (x): {
   if x < 2 then {1} else {
       fib(x-2) + fib(x-1);
   };
 };
-
 fib(7);
+
+# recursive odd/even
+even = lambda (x) : if (x == 0) then true else odd(x-1);
+odd = lambda (x) : if (x == 0) then false else even(x-1);
+
+odd(500);
 `;
 
 const parse = (code: string): { ast: Ast; error: string } => {
