@@ -123,7 +123,7 @@ export class Parser {
 
   private parseProg(): Ast | AstProg {
     const body = this.delimited("{", "}", ";", () => this.parseExpression());
-    if (body.length === 0) {
+    if (body.length === 1) {
       return body[0];
     }
     return {
