@@ -55,7 +55,7 @@ export type RunResult<T = Value | AstLambda> = [T, Context];
 type PreVars = [string, Value | AstLambda][];
 
 export const createContext = (
-  parent: Context = null,
+  parent: Context | null = null,
   vars: PreVars = []
 ): Context => ({
   parent,
@@ -169,9 +169,14 @@ const runVarValue = (ast: AstVar, ctx: Context): RunResult => {
 };
 const runAssign = (ast: AstAssign, ctx: Context): RunResult => {
   const [name, ctx1] = runVarName(ast.left as AstVar, ctx);
-  const [value, ctx2] = run(ast.right, ctx1);
-  const ctx3 = setVar(ctx2, name, value);
-  return [value, ctx3];
+  if (ctx1) {
+    const [value, ctx2] = run(ast.right, ctx1);
+    if (ctx2) {
+      const ctx3 = setVar(ctx2, name, value);
+      return [value, ctx3];
+    }
+  }
+  throw ;
 };
 
 const runCall = (ast: AstCall, ctx: Context): RunResult => {

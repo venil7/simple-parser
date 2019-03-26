@@ -2,6 +2,7 @@ import * as React from "react";
 import { useState } from "react";
 import "react-treeview/react-treeview.css";
 import { Col, Container, Row } from "reactstrap";
+import { compile } from "../compiler";
 import { Ast, Parser } from "../parser";
 import { AstViewer } from "./AstViewer";
 import { Editor } from "./Editor";
@@ -36,16 +37,22 @@ const parse = (code: string): { ast: Ast; error: string } => {
 export const App = () => {
   const [code, setCode] = useState(initCode);
   const { ast, error } = parse(code);
+  const js = error ? "" : compile(ast);
   return (
     <Container>
       <Row>
         <Col sm={6}>
           <Editor code={code} onChange={setCode} />
         </Col>
-        <Col sm={4}>
+        <Col sm={6}>
+          <Editor code={js} />
+        </Col>
+      </Row>
+      <Row>
+        <Col sm={6}>
           <AstViewer ast={ast} error={error} />
         </Col>
-        <Col sm={2}>
+        <Col sm={6}>
           <Result ast={ast} />
         </Col>
       </Row>

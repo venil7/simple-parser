@@ -8,7 +8,7 @@ const donothing = (a => null)(brace);
 
 export type EditorProps = {
   code: string;
-  onChange: (code: string) => void;
+  onChange?: (code: string) => void;
 };
 export const Editor = ({ code, onChange }: EditorProps) => {
   return (
