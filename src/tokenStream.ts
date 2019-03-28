@@ -91,7 +91,7 @@ export class TokenStream {
     }
     return Number(num);
   }
-  public error = (s: string) => this.charStream.error(s);
+  public error = (s: string): never => this.charStream.error(s);
   public *stream(): IterableIterator<Token> {
     let char;
     while ((char = this.charStream.peek())) {

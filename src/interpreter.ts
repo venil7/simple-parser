@@ -35,7 +35,7 @@ type Context = {
 
 const getVar = (ctx: Context, name: string): Value | AstLambda => {
   if (ctx.vars.has(name)) {
-    return ctx.vars.get(name);
+    return ctx.vars.get(name) as Value | AstLambda;
   } else if (ctx.parent) {
     return getVar(ctx.parent, name);
   }
@@ -107,7 +107,7 @@ const runSequence = (ast: Ast[], ctx: Context): RunResult => {
 const runProg = (ast: AstProg, ctx: Context): RunResult => {
   const progContext = createContext(ctx);
   const [result] = runSequence(ast.body, progContext);
-  return [result, progContext.parent];
+  return [result, progContext.parent as Context];
 };
 
 const runAdd = (left: Ast, right: Ast, ctx: Context): RunResult => {
@@ -176,7 +176,7 @@ const runAssign = (ast: AstAssign, ctx: Context): RunResult => {
       return [value, ctx3];
     }
   }
-  throw ;
+  throw new Error(`Context is not defined`);
 };
 
 const runCall = (ast: AstCall, ctx: Context): RunResult => {
@@ -200,7 +200,7 @@ const runCall = (ast: AstCall, ctx: Context): RunResult => {
     .map(([name]) => name);
   const lambdaContext = createContext(ctx, zip(names, args));
   const [result, _ctx] = run(lambda.body, lambdaContext);
-  return [result, _ctx.parent];
+  return [result, _ctx.parent as Context];
 };
 const runLambda = (ast: AstLambda, ctx: Context): RunResult => [ast, ctx];
 

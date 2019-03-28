@@ -96,16 +96,16 @@ export class Parser {
     value
   });
 
-  private parseVarName = (): AstVar => {
+  private parseVarName = (): AstVar | never => {
     const peek = this.peek();
     if (isVar(peek)) {
       const val = this.next().value as string;
       return this.parseVar(val);
     }
-    this.error(`${peek.value} is not a variable name`);
+    return this.error(`${peek.value} is not a variable name`);
   };
 
-  private parseItem(): Ast {
+  private parseItem(): Ast | never {
     const peek = this.peek();
     if (isIf(peek)) return this.parseIf();
     if (isOpenParen(peek)) return this.parseParenthesis();
@@ -118,7 +118,7 @@ export class Parser {
     if (isTrue(next)) return this.parseBool(true);
     if (isString(next)) return this.parseStr(next.value as string);
     if (isNum(next)) return this.parseNum(next.value as number);
-    this.error(`Unexpected token "${next.value}"`);
+    return this.error(`Unexpected token "${next.value}"`);
   }
 
   private parseParenthesis(): Ast {
@@ -145,7 +145,7 @@ export class Parser {
       this.parseVarName()
     ) as AstVar[];
     this.skipCol();
-    const body = this.parseExpression(); //this.delimited("{", "}", ";", () => this.parseExpression());
+    const body = this.parseExpression();
     return {
       type: AstNode.Lambda,
       vars,
@@ -268,6 +268,6 @@ export class Parser {
   private eof = (): boolean => this.tokenStream.eof();
   private next = (): Token => this.tokenStream.next().value;
   private peek = (): Token => this.tokenStream.peek().value;
-  private error = (s: string) =>
+  private error = (s: string): never =>
     this.rawTokenStream.error(`${s} around "${this.peek().value}"`);
 }
