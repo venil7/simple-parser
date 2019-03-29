@@ -18,7 +18,12 @@ export class CharStream {
   public peek(): string {
     return this.input.charAt(this.pos);
   }
-  error(s: string): never {
+
+  public eof(): boolean {
+    return this.peek() === undefined;
+  }
+
+  public error(s: string): never {
     throw Error(`Error: ${s} at line: ${this.line} col: ${this.col}`);
   }
 }

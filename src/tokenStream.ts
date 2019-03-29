@@ -1,5 +1,6 @@
 import { CharStream } from "./charStream";
 import { BINARYOPS, OPS } from "./operator";
+import { Peekable } from "./peekable";
 
 export enum TokenType {
   Punc = "PUNC",
@@ -38,16 +39,16 @@ const isKeword = includes(...KEYWORDS);
 
 export class TokenStream {
   private charStream: CharStream;
-  private charIterator: IterableIterator<string>;
+  private charIterator: Peekable<string>;
 
   constructor(private input: string) {
     this.charStream = new CharStream(input);
-    this.charIterator = this.charStream.stream();
+    this.charIterator = new Peekable<string>(this.charStream.stream());
   }
   private takeWhile(...chars: string[]): string {
     const isIn = includes(...chars);
     let str = "";
-    while (isIn(this.charStream.peek())) {
+    while (!this.charIterator.eof() && isIn(this.charIterator.peek().value)) {
       str += this.charIterator.next().value;
     }
     return str;
@@ -55,7 +56,7 @@ export class TokenStream {
   private takeUntil(...chars: string[]): string {
     const notIn = excludes(...chars);
     let str = "";
-    while (notIn(this.charStream.peek())) {
+    while (!this.charIterator.eof() && notIn(this.charIterator.peek().value)) {
       str += this.charIterator.next().value;
     }
     return str;
@@ -85,7 +86,7 @@ export class TokenStream {
   }
   private takeAsNumber(): number {
     const num = this.takeWhile(...NUMBER);
-    const next = this.charStream.peek();
+    const { value: next } = this.charIterator.peek();
     if (isVarstart(next)) {
       this.error(`Unknown token ${num}${next}..`);
     }
@@ -93,8 +94,8 @@ export class TokenStream {
   }
   public error = (s: string): never => this.charStream.error(s);
   public *stream(): IterableIterator<Token> {
-    let char;
-    while ((char = this.charStream.peek())) {
+    while (!this.charIterator.eof()) {
+      const { value: char } = this.charIterator.peek();
       if (isComment(char)) {
         this.skipLineRemainder();
       } else if (isWhitespace(char)) {
