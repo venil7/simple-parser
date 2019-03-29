@@ -57,16 +57,32 @@ const getVar = (ctx: Context, name: string): Value | AstLambda => {
   } else if (ctx.parent) {
     return getVar(ctx.parent, name);
   }
-  throw Error(`Variable "${name}" is undefined`);
+  throw new Error(`Variable ${name} is not declared`);
 };
 
-const setVar = (
+const declareVar = (
   ctx: Context,
   name: string,
   val: Value | AstLambda
-): Context => {
+): RunResult => {
+  if (ctx.vars.has(name)) {
+    throw new Error(`Variable ${name} is already declared in this scope`);
+  }
   ctx.vars.set(name, val);
-  return ctx;
+  return [val, ctx];
+};
+const setVar = (
+  ctx: Context | null,
+  name: string,
+  val: Value | AstLambda
+): RunResult => {
+  if (!ctx) {
+    throw new Error(`Variable ${name} is not declared`);
+  }
+  if (!ctx.vars.has(name)) {
+    return setVar(ctx.parent, name, val);
+  }
+  return [val, ctx];
 };
 
 export const createContext = (
@@ -81,7 +97,9 @@ const zip = (names: string[], values: (Value | AstLambda)[]): PreVars => {
   if (names.length === values.length) {
     return names.map((name, idx) => [name, values[idx]]);
   }
-  throw Error(`Argument mismatch`);
+  throw Error(
+    `${values.length} arguments provided where ${names.length} expected`
+  );
 };
 
 const createBinary = <T extends Value | AstLambda, R = T>(
@@ -119,6 +137,7 @@ const runIf = (ast: AstIf, ctx: Context): RunResult => {
 const runSequence = (ast: Ast[], ctx: Context): RunResult => {
   return ast.reduce(([, _ctx], block) => run(block, _ctx), [false, ctx]);
 };
+
 const runProg = (ast: AstProg, ctx: Context): RunResult => {
   const progContext = createContext(ctx);
   const [result] = runSequence(ast.body, progContext);
@@ -197,8 +216,9 @@ const runAssign = (ast: AstAssign, ctx: Context): RunResult => {
   if (ctx1) {
     const [value, ctx2] = run(ast.right, ctx1);
     if (ctx2) {
-      const ctx3 = setVar(ctx2, name, value);
-      return [value, ctx3];
+      return ast.declare
+        ? declareVar(ctx2, name, value)
+        : setVar(ctx2, name, value);
     }
   }
   throw new Error(`Context is not defined`);

@@ -1,4 +1,4 @@
-import { BinaryOp } from "./operator";
+import { BinaryOp, toBinaryOp } from "./operator";
 import { Peekable } from "./peekable";
 import { Token, TokenStream, TokenType } from "./tokenStream";
 export enum AstNode {
@@ -49,9 +49,9 @@ export type AstBinary = {
   right: Ast;
 };
 export type AstAssign = {
+  declare: boolean;
   type: typeof AstNode.Assign;
-  op: "=";
-  left: Ast;
+  left: AstVar;
   right: Ast;
 };
 
@@ -76,6 +76,7 @@ const isString = isTokenType(TokenType.Str);
 const isNum = isTokenType(TokenType.Num);
 const isIf = isToken(TokenType.Kw)("if");
 const isLambda = isToken(TokenType.Kw)("lambda");
+const isDeclare = isToken(TokenType.Kw)("let");
 const isTrue = isToken(TokenType.Kw)("true");
 const isFalse = isToken(TokenType.Kw)("false");
 export const isAssign = isToken(TokenType.Op)("=");
@@ -111,6 +112,7 @@ export class Parser {
     if (isOpenParen(peek)) return this.parseParenthesis();
     if (isOpenCurly(peek)) return this.parseProg();
     if (isLambda(peek)) return this.parseLambda();
+    if (isDeclare(peek)) return this.parseDeclare();
     const next = this.next();
     if (isVar(next))
       return this.maybeCall(() => this.parseVar(next.value as string));
@@ -126,6 +128,19 @@ export class Parser {
     const ast = this.parseExpression();
     this.skipPunc(")");
     return ast;
+  }
+
+  private parseDeclare(): AstAssign {
+    this.skipLet();
+    const left = this.parseVarName();
+    this.skipOp("=");
+    const right = this.parseItem();
+    return {
+      left,
+      right,
+      declare: true,
+      type: AstNode.Assign
+    };
   }
 
   private parseProg(): Ast | AstProg {
@@ -185,25 +200,26 @@ export class Parser {
     return node;
   }
 
-  public maybeBinary(left: Ast): Ast {
+  public maybeBinary(left: Ast): AstAssign | AstBinary | Ast {
     const next = this.peek();
     if (!this.eof() && isOp(next)) {
       const op = this.next();
       const assign = isAssign(op);
       const right = this.maybeBinary(this.parseItem());
-      return assign
-        ? ({
-            type: AstNode.Assign,
-            op: "=",
-            left,
-            right
-          } as AstAssign)
-        : ({
-            type: AstNode.Binary,
-            op: op.value,
-            left,
-            right
-          } as AstBinary);
+      if (assign) {
+        return {
+          declare: false,
+          type: AstNode.Assign,
+          left: left as AstVar,
+          right
+        };
+      }
+      return {
+        type: AstNode.Binary,
+        op: toBinaryOp(op.value.toString()),
+        left,
+        right
+      };
     }
     return left;
   }
@@ -251,7 +267,11 @@ export class Parser {
     }
     return { type: AstNode.Prog, body };
   }
-
+  private skipOptionalToken(type: TokenType, val: string) {
+    const token = this.peek();
+    const isCorrectToken = isToken(type)(val);
+    if (isCorrectToken(token)) this.skipToken(type, val);
+  }
   private skipToken(type: TokenType, val: string) {
     const token = this.next();
     const isCorrectToken = isToken(type)(val);
@@ -260,9 +280,11 @@ export class Parser {
   private skipKw = (val: string) => this.skipToken(TokenType.Kw, val);
   private skipIf = () => this.skipKw("if");
   private skipLambda = () => this.skipKw("lambda");
-  private skipThen = () => this.skipKw("then");
+  private skipLet = () => this.skipKw("let");
+  private skipThen = () => this.skipOptionalToken(TokenType.Kw, "then"); //this.skipKw("then");
   private skipElse = () => this.skipKw("else");
   private skipPunc = (val: string) => this.skipToken(TokenType.Punc, val);
+  private skipOp = (val: string) => this.skipToken(TokenType.Op, val);
   private skipSemicol = () => this.skipPunc(";");
   private skipCol = () => this.skipPunc(":");
   private eof = (): boolean => this.tokenStream.eof();

@@ -18,7 +18,7 @@ const VARSTART = [...ALPHABET, "_"];
 const IDENTIFIER = [...VARSTART, ...NUMBER];
 const PUNCT = "{}[]();:,".split("");
 const COMMENT = ["#"];
-const KEYWORDS = ["if", "then", "else", "lambda", "true", "false"];
+const KEYWORDS = ["if", "then", "else", "lambda", "true", "false", "let"];
 
 export type Token = { type: TokenType; value: string | number };
 

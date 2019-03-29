@@ -54,8 +54,17 @@ const AstTerminalNode = ({
 };
 
 const AstBinaryNode = ({ id, node }: AstNodeProps<AstAssign | AstBinary>) => {
+  let label;
+  switch (node.type) {
+    case AstNode.Assign:
+      label = node.declare ? "Declare (let)" : "Assign (=)";
+      break;
+    case AstNode.Binary:
+      label = `Op (${node.op})`;
+      break;
+  }
   return (
-    <TreeView key={id} nodeLabel={node.op}>
+    <TreeView key={id} nodeLabel={label}>
       {astNode(node.left)}
       {astNode(node.right)}
     </TreeView>
