@@ -14,6 +14,30 @@ import {
   AstVar
 } from "./parser";
 
+type Value = number | string | boolean;
+type Context = {
+  parent: Context | null;
+  vars: Map<string, Value | AstLambda>;
+};
+export type RunResult<T = Value | AstLambda> = [T, Context];
+type PreVars = [string, Value | AstLambda][];
+type BinaryFunc<T extends Value | AstLambda, R = T> = (l: T, r: T) => R;
+
+class RunResultMonad {
+  constructor(public runResult: (_: Context) => RunResult) {}
+
+  public bind(func: (n: RunResult) => RunResultMonad): RunResultMonad {
+    return new RunResultMonad((ctx: Context) => {
+      const [val, ctx_] = this.runResult(ctx);
+      return func([val, ctx_]).runResult(ctx_);
+    });
+  }
+
+  public static return(result: RunResult): RunResultMonad {
+    return new RunResultMonad((_: Context) => result);
+  }
+}
+
 const runNum = (ast: AstNum, ctx: Context): RunResult<number> => [
   ast.value,
   ctx
@@ -26,12 +50,6 @@ const runBool = (ast: AstBool, ctx: Context): RunResult<boolean> => [
   ast.value,
   ctx
 ];
-
-type Value = number | string | boolean;
-type Context = {
-  parent: Context | null;
-  vars: Map<string, Value | AstLambda>;
-};
 
 const getVar = (ctx: Context, name: string): Value | AstLambda => {
   if (ctx.vars.has(name)) {
@@ -51,9 +69,6 @@ const setVar = (
   return ctx;
 };
 
-export type RunResult<T = Value | AstLambda> = [T, Context];
-type PreVars = [string, Value | AstLambda][];
-
 export const createContext = (
   parent: Context | null = null,
   vars: PreVars = []
@@ -61,7 +76,6 @@ export const createContext = (
   parent,
   vars: new Map<string, Value | AstLambda>(vars)
 });
-type BinaryFunc<T extends Value | AstLambda, R = T> = (l: T, r: T) => R;
 
 const zip = (names: string[], values: (Value | AstLambda)[]): PreVars => {
   if (names.length === values.length) {
@@ -69,6 +83,7 @@ const zip = (names: string[], values: (Value | AstLambda)[]): PreVars => {
   }
   throw Error(`Argument mismatch`);
 };
+
 const createBinary = <T extends Value | AstLambda, R = T>(
   func: BinaryFunc<T, R>
 ) => (left: Ast, right: Ast, ctx: Context): RunResult => {
@@ -111,14 +126,24 @@ const runProg = (ast: AstProg, ctx: Context): RunResult => {
 };
 
 const runAdd = (left: Ast, right: Ast, ctx: Context): RunResult => {
-  const [_left] = run(left, ctx);
-  const [_right] = run(right, ctx);
-  if (typeof _left === "number" && typeof _right === "number") {
-    return [_left + _right, ctx];
-  } else if (typeof _left === "string" && typeof _right === "string") {
-    return [_left + _right, ctx];
-  }
-  throw Error(`Type mismatch: can't + ${_left} and ${_right}`);
+  const leftM = new RunResultMonad(c => run(left, c));
+  const rightM = new RunResultMonad(c => run(right, c));
+  const plusTypes = (a: Value | AstLambda, b: Value | AstLambda) =>
+    (typeof a === "number" && typeof b === "number") ||
+    (typeof a === "string" && typeof b === "string");
+
+  return leftM
+    .bind(([leftVal]) =>
+      rightM.bind(([rightVal]) => {
+        if (plusTypes(leftVal, rightVal))
+          return RunResultMonad.return([
+            (leftVal as number) + (rightVal as number),
+            ctx
+          ]);
+        else throw Error(`Type mismatch: can't + ${leftVal} and ${rightVal}`);
+      })
+    )
+    .runResult(ctx);
 };
 
 const runAs = (t: string) => (ast: Ast, ctx: Context) => {
