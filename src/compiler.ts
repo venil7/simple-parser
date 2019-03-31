@@ -1,3 +1,4 @@
+import { BinaryOp } from "./operator";
 import {
   Ast,
   AstAssign,
@@ -56,8 +57,18 @@ const compileAssign = (ast: AstAssign) =>
     ? `var ${compile(ast.left)} = ${compile(ast.right)}`
     : `${compile(ast.left)} = ${compile(ast.right)}`;
 
-const compileBinary = (ast: AstBinary) =>
-  `${compile(ast.left)} ${ast.op} ${compile(ast.right)}`;
+const compileBinary = (ast: AstBinary) => {
+  switch (ast.op) {
+    case BinaryOp.Power:
+      return `Math.pow(${compile(ast.left)}, ${compile(ast.right)})`;
+    case BinaryOp.Eq:
+      return `${compile(ast.left)} === ${compile(ast.right)}`;
+    case BinaryOp.NotEq:
+      return `${compile(ast.left)} !== ${compile(ast.right)}`;
+    default:
+      return `${compile(ast.left)} ${ast.op} ${compile(ast.right)}`;
+  }
+};
 const compileIf = (ast: AstIf) =>
   `(${compile(ast.cond)}) ? ${compile(ast.then)} : ${compile(ast.else)}`;
 const compileLambda = (ast: AstLambda) =>

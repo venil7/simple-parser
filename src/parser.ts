@@ -134,7 +134,7 @@ export class Parser {
     this.skipLet();
     const left = this.parseVarName();
     this.skipOp("=");
-    const right = this.parseItem();
+    const right = this.parseExpression();
     return {
       left,
       right,
