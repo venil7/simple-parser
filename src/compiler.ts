@@ -39,16 +39,16 @@ const compileLastInBlock = (ast: Ast | null): string => {
   }
 };
 const compileSelfInvokingFunc = (ast: AstProg) => {
+  let code = "";
   if (ast.body.length === 1) {
-    return compileLastInBlock(ast.body[0]);
+    code = compileLastInBlock(ast.body[0]);
   }
   const bodyAst = allButLast(ast.body);
   const lastAst = last(ast.body);
-  return `(function(){
-${bodyAst.map(ast => `${compile(ast)};\n`).join("")}${compileLastInBlock(
-    lastAst
-  )}
-}())`;
+  code = `${bodyAst
+    .map(ast => `${compile(ast)};\n`)
+    .join("")}${compileLastInBlock(lastAst)}`;
+  return `(function(){ ${code} }())`;
 };
 
 const compileAssign = (ast: AstAssign) =>

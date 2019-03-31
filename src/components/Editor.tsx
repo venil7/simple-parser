@@ -1,23 +1,22 @@
-import brace from "brace";
-import "brace/mode/coffee";
-import "brace/theme/solarized_dark";
+// import * as prettier from "prettier";
 import * as React from "react";
-import AceEditor from "react-ace";
-
-const donothing = (a => null)(brace);
+import MonacoEditor from "react-monaco-editor";
 
 export type EditorProps = {
+  format?: boolean;
   code: string;
   onChange?: (code: string) => void;
 };
-export const Editor = ({ code, onChange }: EditorProps) => {
+export const Editor = ({ code, onChange, format }: EditorProps) => {
   return (
-    <AceEditor
-      name="code"
+    <MonacoEditor
+      width="100%"
+      height="300"
+      language="typescript"
+      theme="vs-dark"
       value={code}
+      options={{ formatOnPaste: true, formatOnType: true }}
       onChange={onChange}
-      theme="solarized_dark"
-      editorProps={{ $blockScrolling: true }}
     />
   );
 };

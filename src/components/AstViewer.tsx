@@ -19,6 +19,7 @@ export const astNode = (node: Ast) => {
   const id = Math.random().toString();
   switch (node.type) {
     case AstNode.Bool:
+    case AstNode.Str:
     case AstNode.Num:
     case AstNode.Var:
       return <AstTerminalNode node={node} id={id} />;
@@ -105,5 +106,9 @@ const AstLambdaNode = ({ id, node }: AstNodeProps<AstLambda>) => {
   );
 };
 export const AstViewer = ({ ast, error }: AstViewerProps) => {
-  return error ? <pre>{error}</pre> : astNode(ast);
+  return error ? (
+    <pre>{error}</pre>
+  ) : (
+    <div className="top-tree-view">{astNode(ast)}</div>
+  );
 };
