@@ -6,6 +6,7 @@
   "scripts": {
     "start": "parcel index.html --open",
     "build": "parcel build index.html",
+    "build-gh": "parcel build index.html --public-url http://darkruby.co.uk/simple-parser/ -d ./docs",
     "test": "jest"
   },
   "dependencies": {
