@@ -1,9 +1,9 @@
-# simple-parser
+# Simple Parser, Interpreter and Compiler
 
-- parser
-- interpreter
+## A `TypeScript` implementation of a imple parser of a primitive custom language, and and a compiler to JS
+
+- Parser
+- Interpreter
 - JS compiler
 
-for a custome `primitive language`
-
-[preview here](http://darkruby.co.uk/simple-parser/)
+[preview here](https://darkruby.co.uk/simple-parser/)

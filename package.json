@@ -1,12 +1,12 @@
 {
-  "name": "compiler",
-  "version": "1.0.0",
-  "description": null,
+  "name": "simple-compiler",
+  "version": "1.0.1",
+  "description": "Parser of a simple custom language, and compiler to JS",
   "main": "index.html",
   "scripts": {
     "start": "parcel index.html --open",
     "build": "parcel build index.html",
-    "build-gh": "parcel build index.html --public-url http://darkruby.co.uk/simple-parser/ -d ./docs",
+    "build-gh": "parcel build index.html --public-url https://darkruby.co.uk/simple-parser/ -d ./docs",
     "test": "jest"
   },
   "dependencies": {
