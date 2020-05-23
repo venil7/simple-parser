@@ -18,6 +18,8 @@ export const Result = (props: ResultProps) => {
       setVmRes(result.toString());
     } catch (e) {
       setVmRes(e.message);
+    } finally {
+      setTimeout(() => setVmRes(""), 500);
     }
   };
   const runJs = () => {
@@ -26,6 +28,8 @@ export const Result = (props: ResultProps) => {
       setJsRes(res.toString());
     } catch (e) {
       setJsRes(e.message);
+    } finally {
+      setTimeout(() => setJsRes(""), 500);
     }
   };
   return (

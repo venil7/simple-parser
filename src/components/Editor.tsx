@@ -1,22 +1,23 @@
-// import * as prettier from "prettier";
 import * as React from "react";
+import { js_beautify } from "js-beautify";
 import MonacoEditor from "react-monaco-editor";
 
 export type EditorProps = {
   format?: boolean;
   code: string;
+  readonly?: boolean;
   onChange?: (code: string) => void;
 };
-export const Editor = ({ code, onChange, format }: EditorProps) => {
+export const Editor = ({ code, onChange, format, readonly }: EditorProps) => {
   return (
     <MonacoEditor
       width="100%"
       height="300"
-      language="typescript"
+      language="javascript"
       theme="vs-dark"
-      value={code}
+      value={format ? js_beautify(code) : code}
       options={{ formatOnPaste: true, formatOnType: true }}
-      onChange={onChange}
+      onChange={!readonly ? onChange : undefined}
     />
   );
 };

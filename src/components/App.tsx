@@ -46,7 +46,7 @@ export const App = () => {
     <Container>
       <Row>
         <Col sm={6}>
-          <h3>Primitive-lang</h3>
+          <h3>Simple lang</h3>
           <Editor code={code} onChange={setCode} />
           <Button color="warning" onClick={() => setCode(fibonacciExample)}>
             Fibonacci
@@ -57,7 +57,7 @@ export const App = () => {
         </Col>
         <Col sm={6}>
           <h3>Compiled JavaScript</h3>
-          <Editor code={js} />
+          <Editor code={js} readonly format />
           <Result ast={ast} js={js} />
         </Col>
       </Row>
