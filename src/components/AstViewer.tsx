@@ -12,8 +12,8 @@ import {
   AstNum,
   AstProg,
   AstStr,
-  AstVar
-} from "../parser";
+  AstVar,
+} from "../parser/parser";
 
 export const astNode = (node: Ast) => {
   const id = Math.random().toString();
@@ -22,23 +22,23 @@ export const astNode = (node: Ast) => {
     case AstNode.Str:
     case AstNode.Num:
     case AstNode.Var:
-      return <AstTerminalNode node={node} id={id} />;
+      return <AstTerminalNode node={node} id={id} key={id} />;
     case AstNode.Prog:
-      return <AstProgNode node={node} id={id} />;
+      return <AstProgNode node={node} id={id} key={id} />;
     case AstNode.Lambda:
-      return <AstLambdaNode node={node} id={id} />;
+      return <AstLambdaNode node={node} id={id} key={id} />;
     case AstNode.If:
-      return <AstIfNode node={node} id={id} />;
+      return <AstIfNode node={node} id={id} key={id} />;
     case AstNode.Call:
-      return <AstCallNode node={node} id={id} />;
+      return <AstCallNode node={node} id={id} key={id} />;
     case AstNode.Binary:
     case AstNode.Assign:
-      return <AstBinaryNode node={node} id={id} />;
+      return <AstBinaryNode node={node} id={id} key={id} />;
   }
 };
 
 export type AstViewerProps = {
-  ast: Ast;
+  ast: Ast | null;
   error: string;
 };
 
@@ -48,7 +48,7 @@ export type AstNodeProps<T extends Ast> = {
 };
 const AstTerminalNode = ({
   id,
-  node
+  node,
 }: AstNodeProps<AstNum | AstBool | AstStr | AstVar>) => {
   const label = `${node.type}: ${node.value}`;
   return <TreeView key={id} nodeLabel={label} />;
@@ -109,6 +109,6 @@ export const AstViewer = ({ ast, error }: AstViewerProps) => {
   return error ? (
     <pre>{error}</pre>
   ) : (
-    <div className="top-tree-view">{astNode(ast)}</div>
+    <div className="top-tree-view">{astNode(ast!)}</div>
   );
 };

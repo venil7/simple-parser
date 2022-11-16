@@ -1,8 +1,8 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import { App } from "./components/App";
-import { Parser } from "./parser";
-import { TokenStream } from "./tokenStream";
+import { App } from "./Components/App";
+import { Parser } from "./parser/parser";
+import { TokenStream } from "./parser/tokenStream";
 
 const input = `
   sum = lambda (a,b): {a+b;};
@@ -27,9 +27,5 @@ const parserResult = () => {
     return (e as Error).message;
   }
 };
-
-// document.getElementById("app").innerHTML = `
-// ${JSON.stringify(parserResult(), null, 2)}
-// `;
 
 ReactDOM.render(<App />, document.getElementById("app"));

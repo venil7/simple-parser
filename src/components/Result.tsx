@@ -1,20 +1,20 @@
 import * as React from "react";
 import { useState } from "react";
-import { Popover, PopoverBody } from "reactstrap";
-import Button from "reactstrap/lib/Button";
-import { createContext, run } from "../interpreter";
-import { Ast } from "../parser";
+import { Popover, PopoverBody, Button } from "reactstrap";
+import { createContext, run } from "../parser/interpreter";
+import { Ast } from "../parser/parser";
 
 export type ResultProps = {
-  ast: Ast;
+  ast: Ast | null;
   js: string;
 };
+
 export const Result = (props: ResultProps) => {
   const [vmRes, setVmRes] = useState("");
   const [jsRes, setJsRes] = useState("");
   const runAst = () => {
     try {
-      const [result] = run(props.ast, createContext());
+      const [result] = run(props.ast!, createContext());
       setVmRes(result.toString());
     } catch (e) {
       setVmRes(e.message);

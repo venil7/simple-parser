@@ -11,7 +11,7 @@ import {
   AstNum,
   AstProg,
   AstStr,
-  AstVar
+  AstVar,
 } from "./parser";
 
 const allButLast = <T>(xs: T[]): T[] => {
@@ -47,7 +47,7 @@ const compileSelfInvokingFunc = (ast: AstProg) => {
   const bodyAst = allButLast(ast.body);
   const lastAst = last(ast.body);
   code = `${bodyAst
-    .map(ast => `${compile(ast)};\n`)
+    .map((ast) => `${compile(ast)};\n`)
     .join("")}${compileLastInBlock(lastAst)}`;
   return `(function(){ ${code} }())`;
 };

@@ -4,6 +4,13 @@
     "target": "es5",
     "noImplicitAny": true,
     "strictNullChecks": true,
-    "noImplicitReturns": true
+    "noImplicitReturns": true,
+    "esModuleInterop": true, /* Enables emit interoperability between CommonJS and ES Modules via creation of namespace objects for all imports. Implies 'allowSyntheticDefaultImports'. */
+    "typeRoots": [
+      "./node_modules/@types"
+    ],
+    "types": [
+      "vitest/globals"
+    ]
   }
 }

@@ -1,6 +1,6 @@
 # Simple Parser, Interpreter and Compiler
 
-## A `TypeScript` implementation of a imple parser of a primitive custom language, and and a compiler to JS
+## A `TypeScript` implementation of a simple parser for a primitive custom functional language, and a compiler to JavaScript
 
 - Parser
 - Interpreter

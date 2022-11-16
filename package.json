@@ -4,30 +4,31 @@
   "description": "Parser of a simple custom language, and compiler to JS",
   "main": "index.html",
   "scripts": {
-    "start": "parcel index.html --open",
-    "build": "parcel build index.html",
+    "start": "vite",
+    "check": "tsc --noEmit",
+    "build": "vite build",
     "build-gh": "parcel build index.html --public-url https://darkruby.co.uk/simple-parser/ -d ./docs",
-    "test": "jest"
+    "test": "vitest --run"
   },
   "dependencies": {
+    "@vitejs/plugin-react": "^2.2.0",
     "js-beautify": "^1.11.0",
     "prettier": "^2.0.5",
-    "react": "^16.8.4",
-    "react-dom": "^16.8.4",
-    "react-monaco-editor": "^0.25.1",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "react-monaco-editor": "^0.50.1",
     "react-treeview": "^0.4.7",
-    "reactstrap": "^7.1.0"
+    "reactstrap": "^9.1.5",
+    "vite": "^3.2.4",
+    "vitest": "^0.25.2"
   },
   "devDependencies": {
     "@types/js-beautify": "^1.11.0",
-    "@babel/preset-typescript": "^7.3.3",
-    "@types/jest": "^24.0.11",
     "@types/prettier": "^1.16.1",
-    "@types/react": "^16.8.8",
+    "@types/react": "^17.0.52",
+    "@types/react-dom": "^17.0.18",
     "@types/react-treeview": "^0.4.2",
-    "jest": "^24.5.0",
-    "parcel-bundler": "^1.12.4",
-    "typescript": "^3.8.3"
+    "typescript": "^4.9.3"
   },
   "keywords": [
     "parser",

@@ -15,7 +15,7 @@ export class Peekable<T> implements PeekableIterator<T> {
 
   public eof(): boolean {
     const item = this.peek();
-    return item && item.done;
+    return item.done ?? false;
   }
 
   public next(): IteratorResult<T> {

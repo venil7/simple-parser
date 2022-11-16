@@ -1,14 +1,14 @@
 import * as React from "react";
 import { useState } from "react";
-import "react-treeview/react-treeview.css";
-import { Col, Container, Row } from "reactstrap";
-import Button from "reactstrap/lib/Button";
-import { compile } from "../compiler";
-import { Ast, Parser } from "../parser";
-import "../style.css";
+import { Col, Container, Row, Button } from "reactstrap";
+import { compile } from "../parser/compiler";
+import { Ast, Parser } from "../parser/parser";
 import { AstViewer } from "./AstViewer";
 import { Editor } from "./Editor";
 import { Result } from "./Result";
+
+import "react-treeview/react-treeview.css";
+import "../style/style.css";
 
 const fibonacciExample = `
 # fibonacci

@@ -8,7 +8,7 @@ export enum TokenType {
   Str = "STRING",
   Var = "VAR",
   Kw = "KW",
-  Op = "OP"
+  Op = "OP",
 }
 
 const WHITESPACE = [" ", "\n", "\t"];

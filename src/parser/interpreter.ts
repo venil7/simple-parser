@@ -11,7 +11,7 @@ import {
   AstNum,
   AstProg,
   AstStr,
-  AstVar
+  AstVar,
 } from "./parser";
 
 type Value = number | string | boolean;
@@ -40,15 +40,15 @@ class RunResultMonad {
 
 const runNum = (ast: AstNum, ctx: Context): RunResult<number> => [
   ast.value,
-  ctx
+  ctx,
 ];
 const runStr = (ast: AstStr, ctx: Context): RunResult<string> => [
   ast.value,
-  ctx
+  ctx,
 ];
 const runBool = (ast: AstBool, ctx: Context): RunResult<boolean> => [
   ast.value,
-  ctx
+  ctx,
 ];
 
 const getVar = (ctx: Context, name: string): Value | AstLambda => {
@@ -90,7 +90,7 @@ export const createContext = (
   vars: PreVars = []
 ): Context => ({
   parent,
-  vars: new Map<string, Value | AstLambda>(vars)
+  vars: new Map<string, Value | AstLambda>(vars),
 });
 
 const zip = (names: string[], values: (Value | AstLambda)[]): PreVars => {
@@ -145,8 +145,8 @@ const runProg = (ast: AstProg, ctx: Context): RunResult => {
 };
 
 const runAdd = (left: Ast, right: Ast, ctx: Context): RunResult => {
-  const leftM = new RunResultMonad(c => run(left, c));
-  const rightM = new RunResultMonad(c => run(right, c));
+  const leftM = new RunResultMonad((c) => run(left, c));
+  const rightM = new RunResultMonad((c) => run(right, c));
   const plusTypes = (a: Value | AstLambda, b: Value | AstLambda) =>
     (typeof a === "number" && typeof b === "number") ||
     (typeof a === "string" && typeof b === "string");
@@ -157,7 +157,7 @@ const runAdd = (left: Ast, right: Ast, ctx: Context): RunResult => {
         if (plusTypes(leftVal, rightVal))
           return RunResultMonad.return([
             (leftVal as number) + (rightVal as number),
-            ctx
+            ctx,
           ]);
         else throw Error(`Type mismatch: can't + ${leftVal} and ${rightVal}`);
       })
@@ -204,7 +204,7 @@ const runBinary = (ast: AstBinary, ctx: Context): RunResult => {
 
 const runVarName = (ast: AstVar, ctx: Context): RunResult<string> => [
   ast.value,
-  ctx
+  ctx,
 ];
 const runVarValue = (ast: AstVar, ctx: Context): RunResult => {
   const name = ast.value;
@@ -226,7 +226,7 @@ const runAssign = (ast: AstAssign, ctx: Context): RunResult => {
 
 const runCall = (ast: AstCall, ctx: Context): RunResult => {
   const [func] = run(ast.func, ctx);
-  const args = ast.args.map(arg => run(arg, ctx)).map(([arg, _]) => arg);
+  const args = ast.args.map((arg) => run(arg, ctx)).map(([arg, _]) => arg);
   let lambda: AstLambda;
   switch (typeof func) {
     case "string": {
@@ -241,7 +241,7 @@ const runCall = (ast: AstCall, ctx: Context): RunResult => {
       throw new Error(`${func} can not be invoked as function`);
   }
   const names = lambda.vars
-    .map(varName => runVarName(varName, ctx))
+    .map((varName) => runVarName(varName, ctx))
     .map(([name]) => name);
   const lambdaContext = createContext(ctx, zip(names, args));
   const [result, _ctx] = run(lambda.body, lambdaContext);

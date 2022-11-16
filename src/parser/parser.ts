@@ -11,7 +11,7 @@ export enum AstNode {
   If = "If",
   Assign = "Assign",
   Binary = "Binary",
-  Prog = "Prog"
+  Prog = "Prog",
 }
 
 export type Ast =
@@ -94,7 +94,7 @@ export class Parser {
   private parseVar = (value: string): AstVar => ({ type: AstNode.Var, value });
   private parseBool = (value: boolean): AstBool => ({
     type: AstNode.Bool,
-    value
+    value,
   });
 
   private parseVarName = (): AstVar | never => {
@@ -139,7 +139,7 @@ export class Parser {
       left,
       right,
       declare: true,
-      type: AstNode.Assign
+      type: AstNode.Assign,
     };
   }
 
@@ -150,7 +150,7 @@ export class Parser {
     }
     return {
       type: AstNode.Prog,
-      body
+      body,
     };
   }
 
@@ -164,7 +164,7 @@ export class Parser {
     return {
       type: AstNode.Lambda,
       vars,
-      body
+      body,
     };
   }
 
@@ -179,7 +179,7 @@ export class Parser {
       type: AstNode.If,
       cond,
       then: _then,
-      else: _else
+      else: _else,
     };
   }
 
@@ -187,7 +187,7 @@ export class Parser {
     return {
       type: AstNode.Call,
       func,
-      args: this.delimited("(", ")", ",", () => this.parseExpression())
+      args: this.delimited("(", ")", ",", () => this.parseExpression()),
     };
   }
 
@@ -211,14 +211,14 @@ export class Parser {
           declare: false,
           type: AstNode.Assign,
           left: left as AstVar,
-          right
+          right,
         };
       }
       return {
         type: AstNode.Binary,
         op: toBinaryOp(op.value.toString()),
         left,
-        right
+        right,
       };
     }
     return left;
