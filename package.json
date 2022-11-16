@@ -7,7 +7,7 @@
     "start": "vite",
     "check": "tsc --noEmit",
     "build": "vite build",
-    "build-gh": "parcel build index.html --public-url https://darkruby.co.uk/simple-parser/ -d ./docs",
+    "build-gh": "vite build --base https://darkruby.co.uk/simple-parser/",
     "test": "vitest --run"
   },
   "dependencies": {
