@@ -6,8 +6,7 @@
   "scripts": {
     "start": "vite",
     "check": "tsc --noEmit",
-    "build": "vite build",
-    "build-gh": "vite build --base https://darkruby.co.uk/simple-parser/",
+    "build": "vite build --base https://darkruby.co.uk/simple-parser/",
     "test": "vitest --run"
   },
   "dependencies": {
