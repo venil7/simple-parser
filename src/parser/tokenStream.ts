@@ -22,8 +22,14 @@ const KEYWORDS = ["if", "then", "else", "lambda", "true", "false", "let"];
 
 export type Token = { type: TokenType; value: string | number };
 
-const includes = (...chars: string[]) => (c: string) => chars.indexOf(c) >= 0;
-const excludes = (...chars: string[]) => (c: string) => !includes(...chars)(c);
+const includes =
+  (...chars: string[]) =>
+  (c: string) =>
+    chars.indexOf(c) >= 0;
+const excludes =
+  (...chars: string[]) =>
+  (c: string) =>
+    !includes(...chars)(c);
 const isPunctuation = includes(...PUNCT);
 const isWhitespace = includes(...WHITESPACE);
 const isIdentifier = includes(...IDENTIFIER);
